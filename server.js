@@ -1,23 +1,38 @@
+require("dotenv").config();
+
 const express = require("express");
 const mysql = require("mysql2");
 const cors = require("cors");
 const multer = require("multer");
+const fs = require("fs");
 
 const app = express();
 
-const fs = require("fs");
-
+//
+// ===============================
+// SAFETY: CREATE UPLOADS FOLDER
+// ===============================
+//
 if (!fs.existsSync("uploads")) {
   fs.mkdirSync("uploads");
 }
-require("dotenv").config();
+
+//
+// ===============================
 // MIDDLEWARE
+// ===============================
+//
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(__dirname));
 app.use("/uploads", express.static("uploads"));
+
+//
+// ===============================
 // FILE UPLOAD CONFIG
+// ===============================
+//
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, "uploads/");
@@ -29,7 +44,11 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
+//
+// ===============================
 // MYSQL CONNECTION
+// ===============================
+//
 const db = mysql.createConnection({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
@@ -38,7 +57,6 @@ const db = mysql.createConnection({
   port: Number(process.env.DB_PORT)
 });
 
-// TEST DB CONNECTION
 db.connect((err) => {
   if (err) {
     console.log("❌ Database connection failed:", err);
@@ -47,12 +65,20 @@ db.connect((err) => {
   }
 });
 
+//
+// ===============================
 // HOME ROUTE
+// ===============================
+//
 app.get("/", (req, res) => {
   res.send("GDEH Backend Running");
 });
 
-// ADMISSION ROUTE
+//
+// ===============================
+// ADMISSION API
+// ===============================
+//
 app.post("/api/admission", upload.single("photo"), (req, res) => {
 
   console.log("🔥 FORM SUBMITTED");
@@ -86,7 +112,6 @@ app.post("/api/admission", upload.single("photo"), (req, res) => {
   ];
 
   db.query(sql, values, (err, result) => {
-
     if (err) {
       console.log("❌ DATABASE ERROR:", err);
 
@@ -97,8 +122,6 @@ app.post("/api/admission", upload.single("photo"), (req, res) => {
       });
     }
 
-    console.log("✅ INSERT SUCCESS");
-
     res.json({
       success: true,
       message: "Application submitted successfully",
@@ -107,28 +130,31 @@ app.post("/api/admission", upload.single("photo"), (req, res) => {
   });
 });
 
-// START SERVER
-const PORT = process.env.PORT || 10000;
-
-app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
-});
 //
 // ===============================
-// ADMIN SYSTEM (FULL MODULE)
+// ADMIN CONFIG (FIXED SAFETY)
 // ===============================
 //
-
 const ADMIN = {
   username: process.env.ADMIN_USER,
   password: process.env.ADMIN_PASSWORD
 };
 
 //
-// 🔐 LOGIN ADMIN
+// ===============================
+// ADMIN LOGIN
+// ===============================
 //
 app.post("/admin/login", (req, res) => {
+
   const { username, password } = req.body;
+
+  if (!username || !password) {
+    return res.status(400).json({
+      success: false,
+      message: "Missing credentials"
+    });
+  }
 
   if (
     username === ADMIN.username &&
@@ -147,7 +173,9 @@ app.post("/admin/login", (req, res) => {
 });
 
 //
-// 📊 GET ALL STUDENTS
+// ===============================
+// GET STUDENTS
+// ===============================
 //
 app.get("/admin/students", (req, res) => {
 
@@ -155,7 +183,6 @@ app.get("/admin/students", (req, res) => {
 
   db.query(sql, (err, results) => {
     if (err) {
-      console.log("DB ERROR:", err);
       return res.status(500).json({
         success: false,
         error: err.message
@@ -167,7 +194,9 @@ app.get("/admin/students", (req, res) => {
 });
 
 //
-// 🗑️ DELETE STUDENT
+// ===============================
+// DELETE STUDENT
+// ===============================
 //
 app.delete("/admin/student/:id", (req, res) => {
 
@@ -175,7 +204,6 @@ app.delete("/admin/student/:id", (req, res) => {
 
   db.query(sql, [req.params.id], (err) => {
     if (err) {
-      console.log("DELETE ERROR:", err);
       return res.status(500).json({
         success: false,
         error: err.message
@@ -190,7 +218,9 @@ app.delete("/admin/student/:id", (req, res) => {
 });
 
 //
-// ✏️ UPDATE STUDENT
+// ===============================
+// UPDATE STUDENT
+// ===============================
 //
 app.put("/admin/student/:id", (req, res) => {
 
@@ -216,9 +246,7 @@ app.put("/admin/student/:id", (req, res) => {
   ];
 
   db.query(sql, values, (err) => {
-
     if (err) {
-      console.log("UPDATE ERROR:", err);
       return res.status(500).json({
         success: false,
         error: err.message
@@ -230,4 +258,15 @@ app.put("/admin/student/:id", (req, res) => {
       message: "Student updated successfully"
     });
   });
+});
+
+//
+// ===============================
+// START SERVER
+// ===============================
+//
+const PORT = process.env.PORT || 10000;
+
+app.listen(PORT, () => {
+  console.log(`🚀 Server running on port ${PORT}`);
 });
