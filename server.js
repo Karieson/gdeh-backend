@@ -15,8 +15,8 @@ require("dotenv").config();
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(express.static(__dirname));
 app.use("/uploads", express.static("uploads"));
-
 // FILE UPLOAD CONFIG
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -112,4 +112,119 @@ const PORT = process.env.PORT || 10000;
 
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
+});
+//
+// ===============================
+// ADMIN SYSTEM (FULL MODULE)
+// ===============================
+//
+
+const const ADMIN = {
+  username: process.env.ADMIN_USER,
+  password: process.env.ADMIN_PASSWORD
+};
+
+//
+// 🔐 LOGIN ADMIN
+//
+app.post("/admin/login", (req, res) => {
+  const { username, password } = req.body;
+
+  if (username === ADMIN.username && password === ADMIN.password) {
+    return res.json({
+      success: true,
+      message: "Login successful"
+    });
+  }
+
+  return res.status(401).json({
+    success: false,
+    message: "Invalid credentials"
+  });
+});
+
+//
+// 📊 GET ALL STUDENTS (DASHBOARD)
+//
+app.get("/admin/students", (req, res) => {
+
+  const sql = "SELECT * FROM students ORDER BY id DESC";
+
+  db.query(sql, (err, results) => {
+    if (err) {
+      console.log("DB ERROR:", err);
+      return res.status(500).json({
+        success: false,
+        error: err.message
+      });
+    }
+
+    res.json(results);
+  });
+});
+
+//
+// 🗑️ DELETE STUDENT
+//
+app.delete("/admin/student/:id", (req, res) => {
+
+  const sql = "DELETE FROM students WHERE id = ?";
+
+  db.query(sql, [req.params.id], (err) => {
+    if (err) {
+      console.log("DELETE ERROR:", err);
+      return res.status(500).json({
+        success: false,
+        error: err.message
+      });
+    }
+
+    res.json({
+      success: true,
+      message: "Student deleted successfully"
+    });
+  });
+});
+
+//
+// ✏️ UPDATE STUDENT
+//
+app.put("/admin/student/:id", (req, res) => {
+
+  const sql = `
+    UPDATE students SET
+      first_name = ?,
+      last_name = ?,
+      phone = ?,
+      email = ?,
+      course = ?,
+      county = ?
+    WHERE id = ?
+  `;
+
+  const values = [
+    req.body.first_name,
+    req.body.last_name,
+    req.body.phone,
+    req.body.email,
+    req.body.course,
+    req.body.county,
+    req.params.id
+  ];
+
+  db.query(sql, values, (err) => {
+
+    if (err) {
+      console.log("UPDATE ERROR:", err);
+      return res.status(500).json({
+        success: false,
+        error: err.message
+      });
+    }
+
+    res.json({
+      success: true,
+      message: "Student updated successfully"
+    });
+  });
 });
