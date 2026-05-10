@@ -6,9 +6,6 @@ const cors = require("cors");
 const multer = require("multer");
 const fs = require("fs");
 
-// 👉 ADD IT HERE
-const bcrypt = require("bcryptjs");
-const app = express();
 
 //
 // ===============================
