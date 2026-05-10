@@ -136,8 +136,9 @@ app.post("/api/admission", upload.single("photo"), (req, res) => {
 // ===============================
 //
 const ADMIN = {
-  username: process.env.ADMIN_USER,
-  password: process.env.ADMIN_PASSWORD
+  username: (process.env.ADMIN_USER || "").trim(),
+  password: (process.env.ADMIN_PASSWORD || "").trim()
+};
 };
 
 //
