@@ -137,16 +137,23 @@ footer {
 
 let students = [];
 
+const table = document.getElementById("tableBody");
+const search = document.getElementById("search");
+
 //
 // 📊 LOAD DATA
 //
 function loadData() {
   fetch("https://gdeh-database.onrender.com/admin/students")
-  .then(res => res.json())
-  .then(data => {
-    students = data;
-    render(data);
-  });
+    .then(res => res.json())
+    .then(data => {
+      students = data;
+      render(data);
+    })
+    .catch(err => {
+      console.log(err);
+      alert("Failed to load data");
+    });
 }
 
 //
@@ -182,7 +189,10 @@ function render(data) {
 function del(id) {
   fetch(`https://gdeh-database.onrender.com/admin/student/${id}`, {
     method: "DELETE"
-  }).then(() => loadData());
+  })
+  .then(res => res.json())
+  .then(() => loadData())
+  .catch(err => console.log(err));
 }
 
 //
@@ -209,7 +219,10 @@ function edit(id) {
       course,
       county
     })
-  }).then(() => loadData());
+  })
+  .then(res => res.json())
+  .then(() => loadData())
+  .catch(err => console.log(err));
 }
 
 //
@@ -220,15 +233,14 @@ function filterTable() {
 
   let filtered = students.filter(s =>
     (s.first_name + s.last_name + s.email + s.course)
-    .toLowerCase()
-    .includes(value)
+      .toLowerCase()
+      .includes(value)
   );
 
   render(filtered);
 }
 
 loadData();
-
 </script>
 
 </body>
