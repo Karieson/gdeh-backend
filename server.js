@@ -7,6 +7,7 @@ const multer = require("multer");
 
 const app = express();
 
+// MIDDLEWARE
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -24,16 +25,16 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-// MYSQL CONNECTION (USING VARIABLES)
+// MYSQL CONNECTION
 const db = mysql.createConnection({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
-  port: process.env.DB_PORT
+  port: Number(process.env.DB_PORT)
 });
 
-// TEST CONNECTION
+// TEST DB CONNECTION
 db.connect((err) => {
   if (err) {
     console.log("❌ Database connection failed:", err);
@@ -42,48 +43,57 @@ db.connect((err) => {
   }
 });
 
-// TEST ROUTE
+// HOME ROUTE
 app.get("/", (req, res) => {
   res.send("GDEH Backend Running");
 });
 
-// ADMISSION API
+// ADMISSION ROUTE
 app.post("/api/admission", upload.single("photo"), (req, res) => {
-  const data = req.body;
+
+  console.log("🔥 FORM SUBMITTED");
+  console.log("BODY:", req.body);
+  console.log("FILE:", req.file);
+
   const photo = req.file ? req.file.filename : null;
 
   const sql = `
-    INSERT INTO students 
+    INSERT INTO students
     (first_name, last_name, gender, phone, email, course, intake, mode_of_study, address, county, sub_county, ward, emergency_contact_name, emergency_contact_phone, photo)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `;
 
   const values = [
-    data.first_name,
-    data.last_name,
-    data.gender,
-    data.phone,
-    data.email,
-    data.course,
-    data.intake,
-    data.mode_of_study,
-    data.address,
-    data.county,
-    data.sub_county,
-    data.ward,
-    data.emergency_contact_name,
-    data.emergency_contact_phone,
+    req.body.first_name,
+    req.body.last_name,
+    req.body.gender,
+    req.body.phone,
+    req.body.email,
+    req.body.course,
+    req.body.intake,
+    req.body.mode_of_study,
+    req.body.address,
+    req.body.county,
+    req.body.sub_county,
+    req.body.ward,
+    req.body.emergency_contact_name,
+    req.body.emergency_contact_phone,
     photo
   ];
 
   db.query(sql, values, (err, result) => {
+
     if (err) {
-      console.log(err);
+      console.log("❌ DATABASE ERROR:", err);
+
       return res.status(500).json({
         success: false,
-        message: "Database error"
+        message: "Database error",
+        error: err.message
       });
     }
+
+    console.log("✅ INSERT SUCCESS");
 
     res.json({
       success: true,
