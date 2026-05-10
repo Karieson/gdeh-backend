@@ -6,6 +6,8 @@ const cors = require("cors");
 const multer = require("multer");
 const fs = require("fs");
 
+// 👉 ADD IT HERE
+const bcrypt = require("bcryptjs");
 const app = express();
 
 //
@@ -130,144 +132,8 @@ app.post("/api/admission", upload.single("photo"), (req, res) => {
   });
 });
 
-//
-// ===============================
-// ADMIN CONFIG (FIXED SAFETY)
-// ===============================
-//
-const ADMIN = {
-  username: (process.env.ADMIN_USER || "").trim(),
-  password: (process.env.ADMIN_PASSWORD || "").trim()
-};
-};
-
-//
-// ===============================
-// ADMIN LOGIN
-// ===============================
-//
-app.post("/admin/login", (req, res) => {
-
-  const { username, password } = req.body;
-
-  if (!username || !password) {
-    return res.status(400).json({
-      success: false,
-      message: "Missing credentials"
-    });
-  }
-
-  if (
-    username === ADMIN.username &&
-    password === ADMIN.password
-  ) {
-    return res.json({
-      success: true,
-      message: "Login successful"
-    });
-  }
-
-  return res.status(401).json({
-    success: false,
-    message: "Invalid credentials"
   });
 });
 
-//
-// ===============================
-// GET STUDENTS
-// ===============================
-//
-app.get("/admin/students", (req, res) => {
 
-  const sql = "SELECT * FROM students ORDER BY id DESC";
-
-  db.query(sql, (err, results) => {
-    if (err) {
-      return res.status(500).json({
-        success: false,
-        error: err.message
-      });
-    }
-
-    res.json(results);
-  });
-});
-
-//
-// ===============================
-// DELETE STUDENT
-// ===============================
-//
-app.delete("/admin/student/:id", (req, res) => {
-
-  const sql = "DELETE FROM students WHERE id = ?";
-
-  db.query(sql, [req.params.id], (err) => {
-    if (err) {
-      return res.status(500).json({
-        success: false,
-        error: err.message
-      });
-    }
-
-    res.json({
-      success: true,
-      message: "Student deleted successfully"
-    });
-  });
-});
-
-//
-// ===============================
-// UPDATE STUDENT
-// ===============================
-//
-app.put("/admin/student/:id", (req, res) => {
-
-  const sql = `
-    UPDATE students SET
-      first_name = ?,
-      last_name = ?,
-      phone = ?,
-      email = ?,
-      course = ?,
-      county = ?
-    WHERE id = ?
-  `;
-
-  const values = [
-    req.body.first_name,
-    req.body.last_name,
-    req.body.phone,
-    req.body.email,
-    req.body.course,
-    req.body.county,
-    req.params.id
-  ];
-
-  db.query(sql, values, (err) => {
-    if (err) {
-      return res.status(500).json({
-        success: false,
-        error: err.message
-      });
-    }
-
-    res.json({
-      success: true,
-      message: "Student updated successfully"
-    });
-  });
-});
-
-//
-// ===============================
-// START SERVER
-// ===============================
-//
-const PORT = process.env.PORT || 10000;
-
-app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
-});
+    
