@@ -119,7 +119,7 @@ app.listen(PORT, () => {
 // ===============================
 //
 
-const const ADMIN = {
+const ADMIN = {
   username: process.env.ADMIN_USER,
   password: process.env.ADMIN_PASSWORD
 };
@@ -130,7 +130,10 @@ const const ADMIN = {
 app.post("/admin/login", (req, res) => {
   const { username, password } = req.body;
 
-  if (username === ADMIN.username && password === ADMIN.password) {
+  if (
+    username === ADMIN.username &&
+    password === ADMIN.password
+  ) {
     return res.json({
       success: true,
       message: "Login successful"
@@ -144,7 +147,7 @@ app.post("/admin/login", (req, res) => {
 });
 
 //
-// 📊 GET ALL STUDENTS (DASHBOARD)
+// 📊 GET ALL STUDENTS
 //
 app.get("/admin/students", (req, res) => {
 
