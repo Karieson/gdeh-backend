@@ -1,5 +1,3 @@
-require("dotenv").config();
-
 const express = require("express");
 const mysql = require("mysql2");
 const cors = require("cors");
@@ -7,6 +5,12 @@ const multer = require("multer");
 
 const app = express();
 
+const fs = require("fs");
+
+if (!fs.existsSync("uploads")) {
+  fs.mkdirSync("uploads");
+}
+require("dotenv").config();
 // MIDDLEWARE
 app.use(cors());
 app.use(express.json());
