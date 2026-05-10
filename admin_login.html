@@ -110,8 +110,10 @@ button:hover {
 <script>
 const username = document.getElementById("username").value;
 const password = document.getElementById("password").value;
+const msg = document.getElementById("msg"); // ✔ FIX ADDED
 
 try {
+
   const res = await fetch("https://gdeh-database.onrender.com/admin/login", {
     method: "POST",
     headers: {
@@ -120,18 +122,25 @@ try {
     body: JSON.stringify({ username, password })
   });
 
-  if (!res.ok) throw new Error("Request failed");
-
   const data = await res.json();
 
-  if (data.success) {
-    window.location.href = "admin_dashboard.html";
+  if (res.ok && data.success) {
+
+    msg.style.color = "green";
+    msg.innerText = "Login successful... redirecting";
+
+    setTimeout(() => {
+      window.location.href = "admin_dashboard.html";
+    }, 1000);
+
   } else {
+    msg.style.color = "red";
     msg.innerText = "Invalid login";
   }
 
 } catch (err) {
   console.log(err);
+  msg.style.color = "red";
   msg.innerText = "Server error";
 }
   </script>
