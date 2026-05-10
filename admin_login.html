@@ -107,28 +107,34 @@ button:hover {
   <div id="msg"></div>
 
 </div>
-
 <script>
-async function login() {
+const username = document.getElementById("username").value;
+const password = document.getElementById("password").value;
 
+try {
   const res = await fetch("https://gdeh-database.onrender.com/admin/login", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      username: username.value,
-      password: password.value
-    })
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ username, password })
   });
+
+  if (!res.ok) throw new Error("Request failed");
 
   const data = await res.json();
 
   if (data.success) {
-    window.location.href = "admin.html";
+    window.location.href = "admin_dashboard.html";
   } else {
-    msg.innerText = "Invalid username or password";
+    msg.innerText = "Invalid login";
   }
+
+} catch (err) {
+  console.log(err);
+  msg.innerText = "Server error";
 }
-</script>
+  </script>
 
 </body>
 </html>
