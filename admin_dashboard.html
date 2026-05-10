@@ -115,10 +115,19 @@ footer {
     <th>ID</th>
     <th>First Name</th>
     <th>Last Name</th>
+    <th>Gender</th>
     <th>Phone</th>
     <th>Email</th>
-    <th>Course</th>
+    <th>Address</th>
     <th>County</th>
+    <th>Sub County</th>
+    <th>Ward</th>
+    <th>Course</th>
+    <th>Intake</th>
+    <th>Mode</th>
+    <th>Emergency Name</th>
+    <th>Emergency Phone</th>
+    <th>Photo</th>
     <th>Actions</th>
   </tr>
 </thead>
@@ -166,15 +175,31 @@ function render(data) {
         <td>${s.id}</td>
         <td>${s.first_name}</td>
         <td>${s.last_name}</td>
+        <td>${s.gender}</td>
         <td>${s.phone}</td>
         <td>${s.email}</td>
-        <td>${s.course}</td>
+        <td>${s.address}</td>
         <td>${s.county}</td>
+        <td>${s.sub_county}</td>
+        <td>${s.ward}</td>
+        <td>${s.course}</td>
+        <td>${s.intake}</td>
+        <td>${s.mode_of_study}</td>
+        <td>${s.emergency_contact_name}</td>
+        <td>${s.emergency_contact_phone}</td>
+        <td>
+          ${s.photo ? `<img src="https://gdeh-database.onrender.com/uploads/${s.photo}" width="40">` : "No photo"}
+        </td>
         <td>
           <button onclick="edit(${s.id})">Edit</button>
           <button onclick="del(${s.id})">Delete</button>
         </td>
       </tr>
+    `;
+  });
+
+  table.innerHTML = html;
+}
     `;
   });
 
