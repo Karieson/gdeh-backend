@@ -6,6 +6,12 @@ const cors = require("cors");
 const multer = require("multer");
 const fs = require("fs");
 
+//
+// ===============================
+// CREATE EXPRESS APP
+// ===============================
+//
+const app = express();
 
 //
 // ===============================
@@ -36,6 +42,7 @@ const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, "uploads/");
   },
+
   filename: (req, file, cb) => {
     cb(null, Date.now() + "-" + file.originalname);
   }
@@ -88,7 +95,23 @@ app.post("/api/admission", upload.single("photo"), (req, res) => {
 
   const sql = `
     INSERT INTO students
-    (first_name, last_name, gender, phone, email, course, intake, mode_of_study, address, county, sub_county, ward, emergency_contact_name, emergency_contact_phone, photo)
+    (
+      first_name,
+      last_name,
+      gender,
+      phone,
+      email,
+      course,
+      intake,
+      mode_of_study,
+      address,
+      county,
+      sub_county,
+      ward,
+      emergency_contact_name,
+      emergency_contact_phone,
+      photo
+    )
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `;
 
@@ -111,6 +134,7 @@ app.post("/api/admission", upload.single("photo"), (req, res) => {
   ];
 
   db.query(sql, values, (err, result) => {
+
     if (err) {
       console.log("❌ DATABASE ERROR:", err);
 
@@ -126,11 +150,18 @@ app.post("/api/admission", upload.single("photo"), (req, res) => {
       message: "Application submitted successfully",
       student_id: result.insertId
     });
-  });
-});
 
   });
+
 });
 
+//
+// ===============================
+// START SERVER
+// ===============================
+//
+const PORT = process.env.PORT || 3000;
 
-    
+app.listen(PORT, () => {
+  console.log(`🚀 Server running on port ${PORT}`);
+});
